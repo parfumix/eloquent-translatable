@@ -1,0 +1,31 @@
+{
+    "name": "parfumix/eloquent-translatable",
+    "description": "Eloquent translate",
+    "keywords": ["eloquent", "translate", "laravel", "php"],
+    "homepage": "https://github.com/parfumix/eloquent-translatable",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Radu Bordei",
+            "email": "radu.bordei89@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/parfumix/laravel-translator.git"
+        }
+    ],
+    "require": {
+        "parfumix/laravel-translator": "dev-master",
+        "php": ">=5.4.0",
+        "laravel/framework": "~5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Eloquent\\Translatable\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
