@@ -13,7 +13,7 @@ You can use the `composer` package manager to install. From console run:
 
 or add to your composer.json file
 
-    "parfumix/parfumix/eloquent-translatable": "v1.0"
+    "parfumix/eloquent-translatable": "v1.0"
 
 
 ##Basic usage
