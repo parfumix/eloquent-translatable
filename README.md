@@ -29,9 +29,19 @@ use Eloquent\Translatable\Translatable;
 use Eloquent\Translatable\TranslatableTrait;
 use Illuminate\Database\Eloquent\Model;
 
-class User extends Model implements Translatable {
+// Create page model .
+class Page extends Model implements Translatable {
 
     use TranslatableTrait;
+
+}
+
+// Create translation model for page .
+class PageTranslations extends Model {
+
+    public $timestamps = false;
+    
+    protected $fillable = ['page_id', 'language_id', 'title', 'description'];
 
 }
 ```
