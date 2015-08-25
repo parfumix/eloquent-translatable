@@ -63,6 +63,6 @@ Page::first()->hasTranslation('en')
 Page::first()->removeTranslation('en')
 
 // Will return all translation for current page instance 
-Page::first()->translatios
+Page::first()->translations
 
 ```
