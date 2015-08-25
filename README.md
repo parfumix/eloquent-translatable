@@ -33,6 +33,9 @@ use Illuminate\Database\Eloquent\Model;
 class Page extends Model implements Translatable {
 
     use TranslatableTrait;
+    
+    // That attribute is not required, will try to detect class name. If you have one custom you can do it.
+    protected $translationClass = PageTranslations::class;
 
 }
 
