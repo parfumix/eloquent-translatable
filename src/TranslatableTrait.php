@@ -7,44 +7,79 @@ use Localization as Locale;
 trait TranslatableTrait {
 
     /**
-     * 1. locale is not required .
-     * 2. if locale is not sent as argument than get default detected locale.
-     * 3. check locale if exists in array locales .
-     * 4. get current
+     * @var
+     */
+    protected $translations;
+
+
+    /**
+     * Remove translation by locale .
+     *
+     * @param null $locale
+     * @return $this
+     * @throws TranslatableException
+     */
+    public function removeTranslation($locale = null) {
+        $translation = $this->translate($locale);
+
+        if(! is_null($translation))
+            $translation->delete();
+
+        return $this;
+    }
+
+    /**
+     * Check if model has translation for specific locale .
+     *
+     * @param null $locale
+     * @return bool
+     * @throws TranslatableException
+     */
+    public function hasTranslations($locale = null) {
+        return !is_null($this->translate($locale));
+    }
+
+    /**
+     * Translate attribute by locale .
+     *
+     * @param null $locale
+     * @return mixed
+     * @throws TranslatableException
      */
     public function translate($locale = null) {
-        $locale = isset($locale) ?: Locale\get_active_locale();
+        $locale = isset($locale) ? $locale : Locale\get_active_locale();
 
         if( in_array( $locale, Locale\get_locales() ) )
             throw new TranslatableException(
                 _('Invalid locale')
             );
 
+        $language = $this->getByLocale($locale);
+
         return $this->translations()
-            ->where('locale', $locale);
+            ->where('language_id', $language->id)
+            ->first();
     }
 
+
     /**
-     * Create new eloquent instance and save locales if exists .
+     * Save eloquent model .
      *
-     * @param array $attributes
+     * @param array $options
      * @return mixed
      */
-    public function create(array $attributes = []) {
-        $locales = Locale\get_locales();
+    public function save(array $options = []) {
+        $saved = parent::save($options);
 
-        foreach($locales as $locale)
-            if( in_array($locale, $attributes) )
-                $translations = array_shift($attributes, $locale);
+        $toMerge = [str_singular($this->getModel()->getTable()) . '_id' => $this->id];
+        array_walk($this->translations, function($translation, $locale) use($toMerge)  {
+            $translation = array_merge($toMerge, $translation);
 
-        $eloquent = parent::create($attributes);
-
-        array_walk($translations, function($translation) use($eloquent) {
-            $this->newTranslation($translation)
+            $this->newTranslation($locale, $translation)
                 ->save();
         });
 
-        return $eloquent;
+        return $saved;
     }
 
     /**
@@ -56,34 +91,31 @@ trait TranslatableTrait {
     public function fill(array $attributes) {
         $locales = Locale\get_locales();
 
-        foreach($locales as $locale)
-            if( in_array($locale, $attributes) )
-                $translations = array_shift($attributes, $locale);
+        foreach($locales as $locale => $options)
+            if( in_array($locale, array_keys($attributes)) )
+                $this->translations[$locale] = array_pull($attributes, $locale);
 
-        $eloquent = parent::create($attributes);
-
-        array_walk($translations, function($translation) use($eloquent) {
-            $this->newTranslation($translation)
-                ->save();
-        });
-
-        return $eloquent;
+        return parent::fill($attributes);
     }
+
 
     /**
      * Get new translation instance .
      *
      * @param null $locale
+     * @param array $attributes
      * @return mixed
      */
-    protected function newTranslation($locale = null) {
-        $locale = isset($locale) ?: Locale\get_active_locale();
+    protected function newTranslation($locale = null, array $attributes) {
+        $locale = isset($locale) ? $locale : Locale\get_active_locale();
+
+        $language = $this->getByLocale($locale);
 
         $class = $this->classTranslation();
 
-        return (new $class(
-            [ 'language_id' => $locale ]
-        ));
+        $attributes['language_id'] = $language->id;
+
+        return $class::updateOrCreate($attributes, $attributes);
     }
 
     /**
@@ -93,9 +125,10 @@ trait TranslatableTrait {
      */
     public function translations() {
         return $this->hasMany(
-            $this->getClassTranslations()
+            $this->classTranslation()
         );
     }
+
 
     /**
      * Get Class Translations .
@@ -104,8 +137,21 @@ trait TranslatableTrait {
      */
     protected function classTranslation() {
         if(! $classTranslation = $this->getAttribute('translationClass'))
-            $classTranslation = sprintf('%s%s', $this->getModel()->getTable(), 'Translations');
+            $classTranslation = sprintf('App\\%s%s', ucfirst(str_singular($this->getModel()->getTable())), 'Translations');
 
         return $classTranslation;
+    }
+
+    /**
+     * Get by locale .
+     *
+     * @param $locale
+     * @return mixed
+     */
+    protected function getByLocale($locale) {
+        $languageRepository = app('lang-db-repo');
+
+        return $languageRepository
+            ->getBySlug($locale);
     }
 }
