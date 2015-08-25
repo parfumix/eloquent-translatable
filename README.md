@@ -53,8 +53,6 @@ Page::create([
 // Will access Page translation instance
 Page::first()->translate('en') 
 
-// or
-
 // will access translate title in english 
 Page::first()->translate('en')->title
 
