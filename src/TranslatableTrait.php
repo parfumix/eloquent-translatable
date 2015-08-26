@@ -136,7 +136,7 @@ trait TranslatableTrait {
      * @return string
      */
     protected function classTranslation() {
-        if(! $classTranslation = $this->getAttribute('translationClass'))
+        if(! $classTranslation = $this['translationClass'])
             $classTranslation = sprintf('App\\%s%s', ucfirst(str_singular($this->getModel()->getTable())), 'Translations');
 
         return $classTranslation;
