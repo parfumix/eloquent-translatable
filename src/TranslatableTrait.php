@@ -11,7 +11,6 @@ trait TranslatableTrait {
      */
     protected $translations = [];
 
-
     /**
      * Remove translation by locale .
      *
@@ -71,10 +70,7 @@ trait TranslatableTrait {
     public function save(array $options = []) {
         $saved = parent::save($options);
 
-        $toMerge = [str_singular($this->getModel()->getTable()) . '_id' => $this->id];
-        array_walk($this->translations, function($translation, $locale) use($toMerge)  {
-            $translation = array_merge($toMerge, $translation);
-
+        array_walk($this->translations, function($translation, $locale)  {
             $this->newTranslation($locale, $translation)
                 ->save();
         });
@@ -113,9 +109,14 @@ trait TranslatableTrait {
 
         $class = $this->classTranslation();
 
-        $attributes['language_id'] = $language->id;
+        $update = [
+            'language_id' => $language->id,
+             str_singular($this->getModel()->getTable()) . '_id' => $this->id,
+        ];
 
-        return $class::updateOrCreate($attributes, $attributes);
+        $attributes = array_merge($update, $attributes);
+
+       return $class::updateOrCreate($update, $attributes);
     }
 
     /**
