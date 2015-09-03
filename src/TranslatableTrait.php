@@ -9,7 +9,7 @@ trait TranslatableTrait {
     /**
      * @var
      */
-    protected $translations;
+    protected $translations = [];
 
 
     /**
