@@ -71,6 +71,9 @@ trait TranslatableTrait {
         $saved = parent::save($options);
 
         array_walk($this->translations, function($translation, $locale)  {
+            if(! array_filter($translation))
+                return false;
+
             $this->newTranslation($locale, $translation)
                 ->save();
         });
