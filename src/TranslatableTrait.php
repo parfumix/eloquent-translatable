@@ -158,4 +158,13 @@ trait TranslatableTrait {
         return $languageRepository
             ->getBySlug($locale);
     }
+
+    /**
+     * Get translatedAttributes .
+     *
+     * @return mixed
+     */
+    public function translatedAttributes() {
+        return $this['translatedAttributes'];
+    }
 }
