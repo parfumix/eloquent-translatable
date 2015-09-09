@@ -165,6 +165,20 @@ trait TranslatableTrait {
      * @return mixed
      */
     public function translatedAttributes() {
-        return $this['translatedAttributes'];
+        if(! $attributes = isset($this['translatedAttributes']) ? $this['translatedAttributes'] : null) {
+            $class = $this->classTranslation();
+
+            $attributes = (new $class)
+                ->getFillable();
+
+            $attributes = array_except(array_flip($attributes),  [
+                'language_id' ,
+                str_singular($this->getModel()->getTable()) . '_id'
+            ]);
+
+            $attributes = array_flip($attributes);
+        }
+
+        return $attributes;
     }
 }
