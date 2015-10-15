@@ -114,7 +114,7 @@ trait TranslatableTrait {
 
         $update = [
             'language_id' => $language->id,
-             str_singular($this->getModel()->getTable()) . '_id' => $this->id,
+             isset($this->translation_id) ? $this->translation_id : str_singular($this->getModel()->getTable()) . '_id' => $this->id,
         ];
 
         $attributes = array_merge($update, $attributes);
